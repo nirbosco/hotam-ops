@@ -183,3 +183,9 @@ table.p tr.only-task td{background:#f6f7f9}
 .shift-row{display:flex;gap:10px;align-items:center;margin-top:8px;min-height:44px;font-size:14px;color:var(--ink-2);cursor:pointer}
 .shift-row input,.toggle input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--blue)}
 .pubbox{border-inline-start:0;background:#f6f8ff;border-radius:12px;padding:12px 12px 2px}
+
+.pubrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.pubrow .btn{margin-top:0}
+.pubstate{font-size:14px;font-weight:500;color:var(--ink-2);padding:6px 12px;border-radius:var(--pill);background:#ececf0}
+.pubstate.on{background:#e3f5ef;color:#0e6b57}
+.pubmark{color:var(--teal);font-size:10px;vertical-align:middle}

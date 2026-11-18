@@ -2,6 +2,7 @@
    אין כאן שום נתון. הנתונים יושבים בשרת, נעולים, ונשלפים רק עם קוד אישי. */
 (function () {
   'use strict';
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function () {});
   var SB = 'https://ndrhiikczkbosentclnh.supabase.co';
   var KEY = 'sb_publishable_EckoZz1eIoRjjjQ9XhXhzA_EpuKVWQG';
   var TZ = 'Europe/London';
@@ -163,7 +164,7 @@
 
     var tabs = S.days.map(function (d) {
       var s = shortDay(d);
-      return '<button class="tab" role="tab" data-day="' + d.date + '" aria-selected="' + (d.date === S.day) + '"><b>' + esc(s.a) + (d.date === today ? '<span class="dot" title="היום"></span>' : '') + '</b>' + esc(s.b) + '</button>';
+      return '<button class="tab" role="tab" data-day="' + d.date + '" aria-selected="' + (d.date === S.day) + '"><b>' + esc(s.a) + (d.date === today ? '<span class="dot" title="היום"></span>' : '') + '</b>' + esc(s.b) + (d.published ? ' <span class="pubmark" title="גלוי לעמיתים">●</span>' : '') + '</button>';
     }).join('');
 
     var html = '<header class="top"><div class="top-row"><h1>לו"ז תפעול · לונדון</h1>' +
@@ -195,7 +196,9 @@
     html += '<section class="dayhead"><h2>' + esc(dayLabel(day)) + '</h2>' +
       (day.owner ? '<div class="owner">מחזיק יום: ' + esc(day.owner) + '</div>' : '') +
       (day.gear && S.view !== 'pub' ? '<div class="gear"><b>ציוד ליום:</b> <bdi>' + esc(day.gear) + '</bdi></div>' : '') +
-      (S.view !== 'pub' && !LOCAL ? '<button class="btn ghost" data-act="editday">עריכת פרטי היום</button>' : '') + '</section>';
+      '<div class="pubrow"><span class="pubstate' + (day.published ? ' on' : '') + '">' + (day.published ? 'גלוי לעמיתים בקישור' : 'מוסתר מהעמיתים') + '</span>' +
+      '<button class="btn' + (day.published ? ' ghost' : ' solid') + '" data-act="publish">' + (day.published ? 'הסתרה מהעמיתים' : 'פרסום לעמיתים') + '</button>' +
+      (S.view !== 'pub' ? '<button class="btn ghost" data-act="editday">עריכת פרטי היום</button>' : '') + '</div></section>';
 
     var list = dayItems(day.date).filter(function (i) {
       if (S.view === 'events') return i.kind === 'event';
@@ -272,6 +275,7 @@
     var a = t.dataset.act;
     if (a === 'add') openEditor({ day: S.day, kind: t.dataset.kind, t: '', pub: t.dataset.kind === 'event' });
     else if (a === 'editday') openDayEditor();
+    else if (a === 'publish') togglePublish();
     else if (a === 'image') openImage();
     else if (a === 'print') window.print();
     else if (a === 'history') openHistory();
@@ -324,7 +328,7 @@
       '<div class="field"><label for="f-note">הערות</label><textarea id="f-note" rows="1">' + esc(it.note) + '</textarea></div></div>' +
       '<label class="toggle"><input type="checkbox" id="f-pub"' + (it.pub ? ' checked' : '') + '><span><b>מופיע בלו"ז לעמיתים</b><br><span class="hint">רק השעה, הניסוח והמקום שלמטה יוצאים בתמונה. שום פרט תפעולי לא יוצא.</span></span></label>' +
       '<div class="pubbox" id="pubbox"><div class="field"><label for="f-pw">ניסוח לעמיתים</label><input type="text" id="f-pw" value="' + esc(it.pw) + '" placeholder="' + esc(it.what || 'אם ריק, יופיע הניסוח שלמעלה') + '"><span class="hint">אם ריק, יופיע הניסוח של "מה קורה"</span></div>' +
-      '<div class="field"><label for="f-pl">מקום לעמיתים</label><input type="text" id="f-pl" value="' + esc(it.pl) + '" placeholder="לא חובה"></div></div>' +
+      '<div class="field"><label for="f-pl">מקום לעמיתים</label><input type="text" id="f-pl" value="' + esc(it.pl) + '" placeholder="כתובת, שם מקום, או קישור מגוגל מפות"><span class="hint">בקישור לעמיתים יופיע ככפתור ניווט בגוגל מפות</span></div></div>' +
       '<div class="field"><label for="f-day">יום</label><select id="f-day">' + dayOpts + '</select></div>' +
       '<div class="sheet-actions"><button class="btn solid">שמירה</button><button type="button" class="btn ghost" data-x>ביטול</button><span class="spacer"></span>' +
       (isNew ? '' : '<button type="button" class="btn danger" data-del>מחיקה</button>') + '</div>' +
@@ -385,6 +389,16 @@
     return s + 5;
   }
 
+  function togglePublish() {
+    var d = S.days.filter(function (x) { return x.date === S.day; })[0];
+    var on = !d.published;
+    var n = dayItems(d.date).filter(function (i) { return i.pub && i.kind === 'event' && !i.pre && !i.endp; }).length;
+    if (!confirm(on ? 'לפרסם את ' + d.title + ' לעמיתים? ' + n + ' פריטים יופיעו מיד בקישור של העמיתים.' : 'להסתיר את ' + d.title + ' מהעמיתים? היום ייעלם מהקישור שלהם.')) return;
+    if (LOCAL) { d.published = on; render(); return; }
+    rpc('ops_save_day', { p_day: { date: d.date, published: on } })
+      .then(function (r) { S.days = S.days.map(function (x) { return x.date === r.date ? r : x; }); render(); toast(on ? 'פורסם לעמיתים' : 'הוסתר מהעמיתים'); })
+      .catch(function (e) { if (e.denied) logout(true); else toast('לא נשמר. נסו שוב'); });
+  }
   function openDayEditor() {
     var d = S.days.filter(function (x) { return x.date === S.day; })[0];
     var el = h('<div class="sheet-bg" role="dialog" aria-modal="true" aria-label="פרטי היום"><form class="sheet"><h3>פרטי היום</h3>' +
@@ -405,7 +419,7 @@
   }
 
   // ── היסטוריה ──
-  var ACT = { add: 'הוסיף', edit: 'ערך', delete: 'מחק', done: 'סימן כבוצע', undone: 'ביטל סימון', day: 'ערך את פרטי היום' };
+  var ACT = { add: 'הוסיף', edit: 'ערך', delete: 'מחק', done: 'סימן כבוצע', undone: 'ביטל סימון', day: 'ערך את פרטי היום', publish: 'פרסם לעמיתים', unpublish: 'הסתיר מהעמיתים' };
   function openHistory() {
     var el = h('<div class="sheet-bg" role="dialog" aria-modal="true" aria-label="היסטוריה"><div class="sheet"><h3>שינויים אחרונים</h3><div class="hist">טוען…</div><div class="sheet-actions"><button class="btn ghost" data-x>סגירה</button></div></div></div>');
     function close() { el.remove(); S.editing = false; if (S.dirty) { S.dirty = false; load(true); } }

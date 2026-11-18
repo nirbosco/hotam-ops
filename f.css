@@ -1,0 +1,46 @@
+@font-face{font-family:Rubik;font-weight:400;font-display:swap;src:url(fonts/rubik-hebrew-400-normal.woff2) format("woff2");unicode-range:U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:Rubik;font-weight:500;font-display:swap;src:url(fonts/rubik-hebrew-500-normal.woff2) format("woff2");unicode-range:U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:Rubik;font-weight:700;font-display:swap;src:url(fonts/rubik-hebrew-700-normal.woff2) format("woff2");unicode-range:U+0590-05FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F}
+@font-face{font-family:Rubik;font-weight:400;font-display:swap;src:url(fonts/rubik-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC,U+2122,U+FEFF}
+@font-face{font-family:Rubik;font-weight:500;font-display:swap;src:url(fonts/rubik-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC,U+2122,U+FEFF}
+@font-face{font-family:Rubik;font-weight:700;font-display:swap;src:url(fonts/rubik-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F,U+20AC,U+2122,U+FEFF}
+:root{--blue:#0046ff;--blue-ink:#0035c4;--blue-soft:#e6edff;--teal:#23d7cd;--bg:#f0f0f0;--ink:#14161c;--ink-2:#4a4f5c;--ink-3:#5f6472;--line:#dcdde2;--pill:999px}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Rubik,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:17px;line-height:1.45;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid #0fb4f5;outline-offset:2px}
+.top{background:var(--blue);color:#fff;padding:max(14px,env(safe-area-inset-top)) 16px 0;position:sticky;top:0;z-index:5}
+.top-row{display:flex;align-items:center;gap:12px;max-width:720px;margin:0 auto}
+.top-row img{height:34px;width:auto}
+.top h1{margin:0;font-size:19px;font-weight:700;flex:1}
+.top small{display:block;font-size:13px;font-weight:400;opacity:.9}
+.tabs{display:flex;gap:4px;overflow-x:auto;max-width:720px;margin:12px auto 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;border:0;background:transparent;color:rgba(255,255,255,.9);padding:8px 12px 10px;border-bottom:3px solid transparent;font:inherit;font-size:14px;min-height:56px;cursor:pointer}
+.tab b{display:block;font-size:16px;color:#fff;font-weight:500}
+.tab[aria-selected="true"]{border-bottom-color:#fff}
+.tab[aria-selected="true"] b{font-weight:700}
+.wrap{max-width:720px;margin:0 auto;padding:16px 16px 60px}
+.now{background:#fff;border:1.5px solid var(--blue);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.now-label{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.now-what{font-size:19px;font-weight:700}
+.now-next{font-size:15px;color:var(--ink-2);margin-top:4px}
+.now-next b{color:var(--ink)}
+.day-title{font-size:21px;margin:4px 4px 12px}
+.list{list-style:none;margin:0;padding:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row.past{color:var(--ink-3)}
+.row.past .t{color:var(--ink-3)}
+.row.current{background:var(--blue-soft)}
+.t{font-weight:700;color:var(--blue);direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
+.what{font-weight:500}
+
+.place{margin-top:4px;font-size:15px;color:var(--ink-2);overflow-wrap:anywhere}
+.nav{display:inline-flex;align-items:center;gap:6px;margin-top:8px;min-height:40px;padding:6px 14px;border:1.5px solid var(--blue);border-radius:var(--pill);color:var(--blue);text-decoration:none;font-size:15px;font-weight:500}
+.nav:active{background:var(--blue-soft)}
+.empty{background:#fff;border:1px solid var(--line);border-radius:14px;padding:28px 20px;text-align:center;color:var(--ink-2)}
+.empty b{display:block;color:var(--ink);font-size:19px;margin-bottom:6px}
+.note{font-size:14px;color:var(--ink-3);margin:14px 4px 0}
+.banner{background:#fff2df;color:#8a4a00;border-radius:12px;padding:10px 14px;font-size:15px;margin-bottom:12px}
+@media (prefers-reduced-motion:no-preference){.row.current{transition:background .3s}}
